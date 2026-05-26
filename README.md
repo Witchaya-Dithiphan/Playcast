@@ -32,7 +32,7 @@ Data pipeline:
 
 ```
 games.json ──▶ converted.csv ──▶ games_clean.csv ──▶ owners_model_mlr.joblib ──▶ GUI prediction
- (Kaggle)      tabular form        keep real games     trained model              + similar games
+ (scraper)     tabular form        keep real games     trained model              + similar games
               convert_json_csv.py  clean_data.py       playcast.py                gui_play_cast.py
 ```
 
@@ -47,14 +47,14 @@ playcast/
 ├── .gitignore
 │
 ├── src/                         all source code
-│   ├── convert_json_csv.py      1) convert games.json (Kaggle) → converted.csv
+│   ├── convert_json_csv.py      1) convert games.json (from scraper) → converted.csv
 │   ├── clean_data.py            2) filter out non-games → games_clean.csv
 │   ├── playcast.py              3) train the model + predict / find-similar functions
 │   └── gui_play_cast.py         4) tkinter GUI to enter attributes and predict
 │
 ├── data/                        data
 │   ├── games_clean.csv          the actual training set (~10,400 games) — tracked in git
-│   ├── games.json               Kaggle source (download yourself — not in git, 707MB)
+│   ├── games.json               raw scraper output (generate yourself — not in git, 707MB)
 │   └── converted.csv            intermediate file built by the pipeline (not in git, 505MB)
 │
 ├── models/
@@ -83,7 +83,8 @@ or click **🧩 Similar Games** to see games that are most alike.
 
 ### Retrain the model from scratch (optional)
 ```bash
-# 0) Download games.json from Kaggle (Steam Games Dataset) and place it at data/games.json
+# 0) Generate games.json with the Steam Games Scraper (or download the equivalent
+#    "Steam Games Dataset" from Kaggle) and place it at data/games.json — see section 6
 
 python src/convert_json_csv.py   # 1) games.json → data/converted.csv
 python src/clean_data.py         # 2) converted.csv → data/games_clean.csv
@@ -98,7 +99,7 @@ python src/gui_play_cast.py      # 4) open the prediction GUI
 ## 5. Scope
 
 **Supported:**
-- Ingest raw Kaggle data (JSON) → clean it → train a Linear Regression model
+- Ingest raw scraped data (JSON) → clean it → train a Linear Regression model
 - Predict the estimated owners of a game from its attributes (price, year, average playtime, reviews, tags, languages, publisher, categories)
 - Recommend similar games via cosine similarity
 - A GUI to search games, auto-fill attributes, and predict
@@ -106,7 +107,7 @@ python src/gui_play_cast.py      # 4) open the prediction GUI
 **Limitations:**
 - A linear (OLS) model meant to demonstrate Linear Algebra theory — not tuned for production-grade accuracy
 - The model uses review counts (Positive/Negative) as features, which a truly new game does not have yet — you must supply estimates when predicting
-- The data is a static Kaggle snapshot, not updated in real time
+- The data is a static snapshot from the scraper, not updated in real time
 
 ---
 

@@ -36,12 +36,12 @@ The project shows how concepts from a Linear Algebra course solve a real problem
 
 ```
 games.json ──▶ converted.csv ──▶ games_clean.csv ──▶ owners_model_mlr.joblib ──▶ GUI
-(Kaggle)       tabular form        keep real games     trained model              predict + suggest
+(scraper)      tabular form        keep real games     trained model              predict + suggest
 ```
 
 | File (`src/`) | Role |
 |---|---|
-| `convert_json_csv.py` | Read the Kaggle JSON, convert dict/list fields to strings, save as CSV |
+| `convert_json_csv.py` | Read the scraped JSON, convert dict/list fields to strings, save as CSV |
 | `clean_data.py` | Filter out non-games (software/tools), price < 1 USD, no playtime, no English support, etc. |
 | `playcast.py` | Build features (vector encoding), train Linear Regression, plus `predict_new_game` and `find_similar_games` |
 | `gui_play_cast.py` | tkinter GUI: search games, auto-fill attributes, predict / find-similar buttons |
@@ -67,7 +67,7 @@ Cleaned dataset: **~10,400 games**
 pip install numpy pandas scikit-learn joblib
 python src/gui_play_cast.py        # works with the included trained model
 ```
-Retrain: `convert_json_csv.py → clean_data.py → playcast.py` (requires `data/games.json` from Kaggle first).
+Retrain: `convert_json_csv.py → clean_data.py → playcast.py` (requires `data/games.json` from the Steam Games Scraper first — see Data Source in README).
 
 ---
 

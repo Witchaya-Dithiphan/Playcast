@@ -110,8 +110,17 @@ python src/gui_play_cast.py      # 4) open the prediction GUI
 
 ---
 
-## 6. Data Source
+## 6. Data Source & Credits
 
-**Steam Games Dataset (Kaggle)** — a JSON file keyed by each game's AppID.
+The training data (`games.json`, keyed by each game's AppID) was generated with the
+**Steam Games Scraper**, which pulls data from Steam's Web API and SteamSpy.
+
+- **Scraper used:** [Witchaya-Dithiphan/Steam-Games-Scraper](https://github.com/Witchaya-Dithiphan/Steam-Games-Scraper)
+  — a fork of the original tool below.
+- **Original tool & dataset:** [Steam Games Scraper by FronkonGames](https://github.com/FronkonGames/Steam-Games-Scraper)
+  (MIT License), author of the ["Steam Games Dataset" on Kaggle](https://www.kaggle.com/datasets/fronkongames/steam-games-dataset).
+
 After filtering with `clean_data.py` (removing non-game software/tools, price < 1 USD, no playtime, etc.),
 about **10,400 games** remain for training.
+
+> Credit to **FronkonGames** for the original scraper and dataset that made this project possible.

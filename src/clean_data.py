@@ -1,8 +1,18 @@
 import re
+import sys
 import pandas as pd
+from pathlib import Path
 
-input_csv = "converted.csv"
-output_csv = "games_clean.csv"
+# คอนโซล Windows (cp1252) เข้ารหัส emoji ไม่ได้ → บังคับเป็น utf-8 กัน crash
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+BASE_DIR = Path(__file__).resolve().parents[1]   # โฟลเดอร์ราก playcast/
+DATA_DIR = BASE_DIR / "data"
+input_csv = str(DATA_DIR / "converted.csv")
+output_csv = str(DATA_DIR / "games_clean.csv")
 
 non_game_keywords = {
     "categories": ["SteamVR Tool", "Application", "Utilities", "Design & Illustration",

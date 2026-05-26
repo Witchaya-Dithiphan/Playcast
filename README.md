@@ -1,117 +1,117 @@
-# 🎮 PlayCast — ทำนายยอดผู้เป็นเจ้าของเกมบน Steam
+# 🎮 PlayCast — Predicting Game Owners on Steam
 
-> **โปรเจกต์ปี 2 วิชา Linear Algebra**
-> นำทฤษฎี **เวกเตอร์ (Vector)** และ **เมทริกซ์ (Matrix)** มาประยุกต์กับ Machine Learning
-> เพื่อทำนายจำนวนผู้เป็นเจ้าของ (estimated owners) ของเกมใหม่ที่จะวางขายบน Steam
-
----
-
-## 1. โปรเจกต์นี้ทำอะไร
-
-ผู้พัฒนาเกมอยากรู้ว่า "เกมที่กำลังจะปล่อย" น่าจะมีคนซื้อ/เป็นเจ้าของประมาณเท่าไหร่
-PlayCast รับข้อมูลคุณสมบัติของเกม (ราคา, ปีที่วางขาย, แท็ก, ภาษา, ผู้จัดจำหน่าย, หมวดหมู่ ฯลฯ)
-แล้วทำนายจำนวนผู้เป็นเจ้าของโดยประมาณ พร้อมแนะนำ "เกมที่คล้ายกัน" ในตลาด
-
-มีหน้าจอ GUI ให้กรอกข้อมูลและกดทำนายได้ทันที
+> **2nd-Year Linear Algebra Course Project**
+> Applying **vector** and **matrix** theory together with Machine Learning
+> to predict the estimated number of owners of a new game released on Steam.
 
 ---
 
-## 2. หลักการทำงาน (เชื่อมกับ Linear Algebra)
+## 1. What This Project Does
 
-หัวใจของโปรเจกต์คือการแปลงข้อมูลเกมให้อยู่ในรูป **เวกเตอร์** แล้วประมวลผลด้วย **เมทริกซ์**
+Game developers want to know roughly how many people will own/buy a game before it launches.
+PlayCast takes a game's attributes (price, release year, tags, languages, publisher, categories, etc.)
+and predicts the estimated number of owners, and it can also suggest **similar games** already on the market.
 
-| แนวคิด Linear Algebra | ใช้ตรงไหนในโปรเจกต์ |
+A GUI is provided so you can fill in the attributes and get a prediction instantly.
+
+---
+
+## 2. How It Works (Linear Algebra Connection)
+
+The core idea is to turn each game into a **vector** and process them with **matrices**.
+
+| Linear Algebra concept | Where it's used in the project |
 |---|---|
-| **เวกเตอร์ One-hot** | แปลงข้อมูลข้อความ (Tags / Languages / Publishers / Categories) เป็นเวกเตอร์ฐานสอง ด้วย `MultiLabelBinarizer` — เกมแต่ละเกมกลายเป็นเวกเตอร์ในปริภูมิ 4,963 มิติ |
-| **เมทริกซ์ฟีเจอร์ X** | นำเวกเตอร์ของทุกเกมมาเรียงเป็นเมทริกซ์ขนาด (จำนวนเกม × 4,963) |
-| **Normal Equation / Least Squares** | `LinearRegression` หาค่าสัมประสิทธิ์ **β** ที่ทำให้ Xβ ≈ y โดยแก้สมการเชิงเส้น (พื้นฐานคือ β = (XᵀX)⁻¹Xᵀy) |
-| **Dot product & Cosine Similarity** | วัดความคล้ายของเกมจากมุมระหว่างเวกเตอร์ฟีเจอร์ → ใช้แนะนำเกมที่คล้ายกัน |
-| **Log transform ของ target** | ทำนาย `log1p(owners)` แล้วแปลงกลับด้วย `expm1` เพื่อให้ข้อมูลที่เบ้มากกระจายเหมาะกับโมเดลเชิงเส้น |
+| **One-hot vectors** | Text attributes (Tags / Languages / Publishers / Categories) are converted into binary vectors with `MultiLabelBinarizer` — each game becomes a vector in a 4,963-dimensional space |
+| **Feature matrix X** | Stacking every game's vector forms a matrix of shape (number of games × 4,963) |
+| **Normal Equation / Least Squares** | `LinearRegression` finds the coefficient vector **β** such that Xβ ≈ y by solving a linear system (β = (XᵀX)⁻¹Xᵀy) |
+| **Dot product & Cosine Similarity** | Measures the angle between two games' feature vectors to find the most similar games |
+| **Target log transform** | Predicts `log1p(owners)` and converts back with `expm1`, so the heavily skewed target fits a linear model better |
 
-ขั้นตอนการประมวลผลข้อมูล (data pipeline):
+Data pipeline:
 
 ```
-games.json ──▶ converted.csv ──▶ games_clean.csv ──▶ owners_model_mlr.joblib ──▶ GUI ทำนาย
- (Kaggle)      แปลงเป็นตาราง       กรองให้เหลือเกมจริง    โมเดลที่เทรนแล้ว         + แนะนำเกมคล้าย
-              convert_json_csv.py  clean_data.py        playcast.py            gui_play_cast.py
+games.json ──▶ converted.csv ──▶ games_clean.csv ──▶ owners_model_mlr.joblib ──▶ GUI prediction
+ (Kaggle)      tabular form        keep real games     trained model              + similar games
+              convert_json_csv.py  clean_data.py       playcast.py                gui_play_cast.py
 ```
 
 ---
 
-## 3. โครงสร้างโปรเจกต์
+## 3. Project Structure
 
 ```
 playcast/
-├── README.md                    เอกสารนี้
-├── CLAUDE.md                    สรุปโปรเจกต์เชิงเทคนิค (สำหรับผู้รีวิว/HR)
+├── README.md                    this document
+├── CLAUDE.md                    technical overview (for reviewers / HR)
 ├── .gitignore
 │
-├── src/                         ซอร์สโค้ดทั้งหมด
-│   ├── convert_json_csv.py      1) แปลง games.json (Kaggle) → converted.csv
-│   ├── clean_data.py            2) กรองข้อมูลที่ไม่ใช่เกม → games_clean.csv
-│   ├── playcast.py              3) เทรนโมเดล + ฟังก์ชันทำนาย/หาเกมคล้าย
-│   └── gui_play_cast.py         4) หน้าจอ tkinter สำหรับกรอกข้อมูลและทำนาย
+├── src/                         all source code
+│   ├── convert_json_csv.py      1) convert games.json (Kaggle) → converted.csv
+│   ├── clean_data.py            2) filter out non-games → games_clean.csv
+│   ├── playcast.py              3) train the model + predict / find-similar functions
+│   └── gui_play_cast.py         4) tkinter GUI to enter attributes and predict
 │
-├── data/                        ข้อมูล
-│   ├── games_clean.csv          ชุดข้อมูลที่ใช้เทรนจริง (~10,400 เกม) — อยู่ใน git
-│   ├── games.json               ต้นทางจาก Kaggle (โหลดมาวางเอง — ไม่อยู่ใน git, 707MB)
-│   └── converted.csv            ไฟล์กลางที่ pipeline สร้าง (ไม่อยู่ใน git, 505MB)
+├── data/                        data
+│   ├── games_clean.csv          the actual training set (~10,400 games) — tracked in git
+│   ├── games.json               Kaggle source (download yourself — not in git, 707MB)
+│   └── converted.csv            intermediate file built by the pipeline (not in git, 505MB)
 │
 ├── models/
-│   └── owners_model_mlr.joblib  โมเดลที่เทรนแล้ว (เก็บ model + encoders + feature_columns)
+│   └── owners_model_mlr.joblib  trained model (stores model + encoders + feature_columns)
 │
-└── reference/                   รายการค่าที่พบในข้อมูล (ผล EDA) ไว้ดูเป็นตัวเลือก/อ้างอิงในรายงาน
+└── reference/                   value lists found in the data (EDA output) for reference / report
     └── *_unique.csv / *_counts.csv   (tags, categories, genres, publishers, languages)
 ```
 
 ---
 
-## 4. วิธีติดตั้งและใช้งาน
+## 4. Installation & Usage
 
-### ติดตั้งไลบรารี
+### Install dependencies
 ```bash
 pip install numpy pandas scikit-learn joblib
 ```
 
-### ใช้งานทันที (มีโมเดลให้แล้ว)
-ในโปรเจกต์มี `models/owners_model_mlr.joblib` และ `data/games_clean.csv` อยู่แล้ว เปิด GUI ได้เลย:
+### Use right away (a trained model is included)
+The repo already ships `models/owners_model_mlr.joblib` and `data/games_clean.csv`, so you can open the GUI directly:
 ```bash
 python src/gui_play_cast.py
 ```
-กรอกราคา/ปี/แท็ก/ภาษา/หมวดหมู่ แล้วกด **🔮 Predict** เพื่อดูยอดผู้เป็นเจ้าของโดยประมาณ
-หรือกด **🧩 Similar Games** เพื่อดูเกมที่คล้ายกัน
+Enter price / year / tags / languages / categories and click **🔮 Predict** to see the estimated owners,
+or click **🧩 Similar Games** to see games that are most alike.
 
-### เทรนโมเดลใหม่จากศูนย์ (ถ้าต้องการ)
+### Retrain the model from scratch (optional)
 ```bash
-# 0) โหลด games.json จาก Kaggle (Steam Games Dataset) มาวางไว้ที่ data/games.json
+# 0) Download games.json from Kaggle (Steam Games Dataset) and place it at data/games.json
 
 python src/convert_json_csv.py   # 1) games.json → data/converted.csv
 python src/clean_data.py         # 2) converted.csv → data/games_clean.csv
-python src/playcast.py           # 3) เทรน → models/owners_model_mlr.joblib
-python src/gui_play_cast.py      # 4) เปิดหน้าจอทำนาย
+python src/playcast.py           # 3) train → models/owners_model_mlr.joblib
+python src/gui_play_cast.py      # 4) open the prediction GUI
 ```
 
-> ทุกสคริปต์อ้างอิง path จากตำแหน่งไฟล์ตัวเอง (`__file__`) จึงรันจากโฟลเดอร์ไหนก็ได้
+> Every script resolves its paths relative to its own location (`__file__`), so you can run it from any directory.
 
 ---
 
-## 5. ขอบเขต (Scope)
+## 5. Scope
 
-**ทำได้:**
-- รับข้อมูลดิบจาก Kaggle (JSON) → ทำความสะอาด → เทรนโมเดล Linear Regression
-- ทำนายยอดผู้เป็นเจ้าของของเกมจากคุณสมบัติ (ราคา, ปี, เวลาเล่นเฉลี่ย, รีวิว, แท็ก, ภาษา, ผู้จัดจำหน่าย, หมวดหมู่)
-- แนะนำเกมที่คล้ายกันด้วย cosine similarity
-- หน้าจอ GUI ค้นหาเกม/เติมข้อมูลอัตโนมัติ/ทำนาย
+**Supported:**
+- Ingest raw Kaggle data (JSON) → clean it → train a Linear Regression model
+- Predict the estimated owners of a game from its attributes (price, year, average playtime, reviews, tags, languages, publisher, categories)
+- Recommend similar games via cosine similarity
+- A GUI to search games, auto-fill attributes, and predict
 
-**ข้อจำกัด:**
-- เป็นโมเดลเชิงเส้น (OLS) ใช้สาธิตทฤษฎี Linear Algebra ไม่ได้มุ่งความแม่นยำระดับ production
-- โมเดลใช้จำนวนรีวิว (Positive/Negative) เป็นฟีเจอร์ ซึ่งเกมใหม่จริง ๆ ยังไม่มี — ตอนทำนายต้องใส่ค่าประมาณการ
-- ข้อมูลเป็น snapshot จาก Kaggle ไม่ได้อัปเดตเรียลไทม์
+**Limitations:**
+- A linear (OLS) model meant to demonstrate Linear Algebra theory — not tuned for production-grade accuracy
+- The model uses review counts (Positive/Negative) as features, which a truly new game does not have yet — you must supply estimates when predicting
+- The data is a static Kaggle snapshot, not updated in real time
 
 ---
 
-## 6. ข้อมูลต้นทาง
+## 6. Data Source
 
-**Steam Games Dataset (Kaggle)** — ไฟล์ JSON ที่ key ด้วย AppID ของแต่ละเกม
-หลังกรองด้วย `clean_data.py` (ตัดซอฟต์แวร์/เครื่องมือที่ไม่ใช่เกม, ราคา < 1 USD, ไม่มีเวลาเล่น ฯลฯ)
-เหลือ ~10,400 เกมที่ใช้เทรน
+**Steam Games Dataset (Kaggle)** — a JSON file keyed by each game's AppID.
+After filtering with `clean_data.py` (removing non-game software/tools, price < 1 USD, no playtime, etc.),
+about **10,400 games** remain for training.

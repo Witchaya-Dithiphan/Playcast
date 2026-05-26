@@ -1,8 +1,19 @@
+import sys
 import numpy as np
 import pandas as pd
 import os
+from pathlib import Path
 
-json_path = "./games.json"
+# คอนโซล Windows (cp1252) เข้ารหัส emoji ไม่ได้ → บังคับเป็น utf-8 กัน crash
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+BASE_DIR = Path(__file__).resolve().parents[1]   # โฟลเดอร์ราก playcast/
+DATA_DIR = BASE_DIR / "data"
+json_path = str(DATA_DIR / "games.json")
+converted_path = str(DATA_DIR / "converted.csv")
 
 df = pd.read_json(json_path)
 df = df.T
@@ -82,6 +93,6 @@ df.info()
 df.head()
 df["Tags"].head()
 df["Supported languages"].head()
-df.to_csv("converted.csv") # Saving the converted dataframe
-converted = pd.read_csv("converted.csv") # Reading it back
+df.to_csv(converted_path) # Saving the converted dataframe
+converted = pd.read_csv(converted_path) # Reading it back
 converted.head()

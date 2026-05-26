@@ -1,0 +1,16 @@
+# ===== ไฟล์ข้อมูลขนาดใหญ่ (ไม่ควรขึ้น git) =====
+# games.json (ต้นทาง Kaggle 707MB) และ converted.csv (505MB) เกินลิมิต GitHub
+# โหลด games.json จาก Kaggle มาวางใน data/ เอง แล้วรัน pipeline สร้าง converted.csv
+# ส่วน games_clean.csv (62MB ไฟล์ที่ใช้ train จริง) เก็บขึ้น git ไว้ด้วย
+data/games.json
+data/converted.csv
+
+# ===== แคช/ขยะของ Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ===== ขยะ editor =====
+tempCodeRunnerFile.py
+.vscode/
+.idea/

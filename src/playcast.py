@@ -336,3 +336,29 @@ def find_similar_games(model_bundle_path: Path, dataset_csv_path: Path,
             break
     cols.append("_similarity")
     return df_norm[cols].sort_values("_similarity", ascending=False).head(top_k).reset_index(drop=True)
+
+
+# --------------------------------------
+# Main: ฝึกสอนและบันทึกโมเดลจาก data/games_clean.csv
+#   วิธีใช้:  python src/playcast.py
+#            python src/playcast.py <csv_path> <model_path>
+# --------------------------------------
+if __name__ == "__main__":
+    import sys
+
+    # คอนโซล Windows (cp1252) เข้ารหัส emoji ไม่ได้ → บังคับเป็น utf-8 กัน crash
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+    BASE_DIR = Path(__file__).resolve().parents[1]   # โฟลเดอร์ราก playcast/
+    csv_path = Path(sys.argv[1]) if len(sys.argv) > 1 else BASE_DIR / "data" / "games_clean.csv"
+    model_path = Path(sys.argv[2]) if len(sys.argv) > 2 else BASE_DIR / "models" / "owners_model_mlr.joblib"
+
+    if not csv_path.exists():
+        raise SystemExit(f"❌ ไม่พบไฟล์ข้อมูล: {csv_path}")
+
+    print(f"📂 โหลดข้อมูลจาก: {csv_path}")
+    print(f"🧮 โมเดล: {MODEL_TYPE}")
+    train_and_save(csv_path, model_path)

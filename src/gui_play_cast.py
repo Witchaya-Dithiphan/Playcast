@@ -14,10 +14,11 @@ import webbrowser
 from playcast import predict_new_game, find_similar_games
 
 # --------------------------------------
-# Files
+# Files (อ้างอิงจากตำแหน่งไฟล์ รันจาก CWD ไหนก็ได้)
 # --------------------------------------
-CSV_PATH = Path("games_clean.csv")
-MODEL_PATH = Path("owners_model_mlr.joblib")
+BASE_DIR = Path(__file__).resolve().parents[1]   # โฟลเดอร์ราก playcast/
+CSV_PATH = BASE_DIR / "data" / "games_clean.csv"
+MODEL_PATH = BASE_DIR / "models" / "owners_model_mlr.joblib"
 
 try:
     df = pd.read_csv(CSV_PATH)
